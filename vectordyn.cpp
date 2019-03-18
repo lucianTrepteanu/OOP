@@ -18,14 +18,14 @@ public:
     VectorDyn<T>&operator=(const VectorDyn<T>&alt);
 
     void setSize(int newsz);
-    int getSize();
+    int getSize()const;
 
     void push(T value);
     void Clear();
     void setPos(int pos,T value);
     void shrinkTo(int x);
 
-    T operator [](int idx);
+    T operator [](int idx)const;
     //T& operator [](int index);
 };
 
@@ -74,7 +74,7 @@ VectorDyn<T>&VectorDyn<T>::operator=(const VectorDyn<T>&alt){
 }
 
 template <class T>
-int VectorDyn<T>::getSize(){
+int VectorDyn<T>::getSize()const{
     return sz;
 }
 
@@ -146,7 +146,7 @@ void VectorDyn<T>::setPos(int pos,T value){
 }
 
 template <class T>
-T VectorDyn<T>::operator[](int idx){
+T VectorDyn<T>::operator[](int idx)const{
     if(idx>sz){
         return 0;
     }

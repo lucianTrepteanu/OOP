@@ -1,6 +1,5 @@
 /**
- * TODO: operator de citire!! : DONE
- * TODO: implementat scaderea pe intregi a-b=sign*(max-min)
+ * TODO: Restructurare in mai multe fisiere
 */
 
 #include <iostream>
@@ -14,21 +13,21 @@ public:
     VectorDyn<int>digits;
 public:
     BigNum(){sign=1;} //apeleaza constructorul de vector 
-    BigNum(int val){
+    BigNum(const int &val){
         digits.Clear();
         sign=1;
-        if(val<0){
+        int aux=val;
+        if(aux<0){
             sign=-1;
-            val=-val;
+            aux=-aux;
         }
 
-        int idx=0;
         do{
-            idx++;
+            //idx++;
             //digits.setPos(idx,val%10); 
-            digits.push(val%10);
-            val/=10;
-        }while(val);
+            digits.push(aux%10);
+            aux/=10;
+        }while(aux);
     }
     BigNum(const BigNum&alt){
         sign=alt.sign;
@@ -36,44 +35,46 @@ public:
     }
     ~BigNum(){}
 
-    BigNum &operator=(BigNum alt); //da
-    bool operator==(BigNum &alt); //da
-    bool operator<(BigNum &alt); //da
+    BigNum &operator=(const BigNum &alt); //da
+    bool operator==(const BigNum &alt); //da
+    bool operator!=(const BigNum &alt); //da
+    bool operator<(const BigNum &alt); //da
 
-    friend bool cmpPositive(BigNum &a, BigNum &b); //da
+    friend bool cmpPositive(const BigNum &a,const BigNum &b); //da
 
     friend istream &operator >>(istream &in,BigNum &x); //da
-    friend ostream &operator <<(ostream &out,BigNum &x); //da
+    friend ostream &operator <<(ostream &out,const BigNum &x); //da
 
     friend BigNum addPositive(BigNum a,BigNum b); //da
     friend BigNum subPositive(BigNum a,BigNum b); //da
 
-    BigNum operator +(BigNum &alt); //da
-    BigNum operator -(BigNum &alt); //da
-    BigNum operator *(BigNum &alt); //da
-    BigNum operator /(BigNum &alt);
+    BigNum operator +(const BigNum &alt); //da
+    BigNum operator -(const BigNum &alt); //da
+    BigNum operator *(const BigNum &alt); //da
+    BigNum operator /(const BigNum &alt);
     BigNum operator %(BigNum &alt); //da
 
     friend BigNum maxAbs(const BigNum &a,const BigNum &b); //imd
 
-    friend BigNum getSqrt(BigNum &a); //imd
+    friend BigNum getSqrt(BigNum a); //imd
 };
 
-BigNum& BigNum:: operator =(BigNum alt){
+BigNum& BigNum:: operator =(const BigNum &alt){
     sign=alt.sign;
     digits=alt.digits;
     return (*this);
 }
 
-bool cmpPositive(BigNum &a,BigNum &b){
-    int idx=1;
+bool cmpPositive(const BigNum &a,const BigNum &b){
+    int idx=a.digits.getSize();
+    //cout<<"-----"<<a<<" "<<b<<endl;
     if(a.digits.getSize()<b.digits.getSize()){
         return true;
     } else if(a.digits.getSize()>b.digits.getSize()){
         return false;
     }
-    while(idx<=a.digits.getSize() && a.digits[idx]==b.digits[idx]){
-        idx++;
+    while(idx>0 && a.digits[idx]==b.digits[idx]){
+        idx--;
     }
 
     if(a.digits[idx]<b.digits[idx]){
@@ -82,7 +83,7 @@ bool cmpPositive(BigNum &a,BigNum &b){
     return false;
 }
 
-bool BigNum::operator==(BigNum &alt){
+bool BigNum::operator==(const BigNum &alt){
     if(sign!=alt.sign){
         return false;
     }
@@ -100,7 +101,14 @@ bool BigNum::operator==(BigNum &alt){
     return false;
 }
 
-bool BigNum::operator <(BigNum &alt){
+bool BigNum::operator !=(const BigNum &alt){
+    if((*this)==alt){
+        return false;
+    }
+    return true;
+}
+
+bool BigNum::operator <(const BigNum &alt){
     if(sign==1 && alt.sign==1){
         return cmpPositive((*this),alt);
     } else if(sign==1 && alt.sign==-1){
@@ -112,12 +120,12 @@ bool BigNum::operator <(BigNum &alt){
     }
 }
 
-ostream &operator <<(ostream &out,BigNum &x){
+ostream &operator <<(ostream &out,const BigNum &x){
     if(x.sign==-1){
         out<<'-';
     }
     for(int i=x.digits.getSize();i>0;i--){
-        out<<x.digits[i]<<" ";
+        out<<x.digits[i];
     }
     return out;
 }
@@ -137,6 +145,9 @@ istream &operator >>(istream &in,BigNum &x){
     }
     while(!in.eof()){
         in.get(ch);
+        if(!(ch>='0' && ch<='9')){
+            break;
+        }
         x.digits.push(ch-'0');
     }
 
@@ -198,8 +209,23 @@ BigNum subPositive(BigNum a,BigNum b){
     return res;
 }
 
-BigNum BigNum::operator+(BigNum &alt){
+BigNum maxAbs(const BigNum &a,const BigNum &b){
+    BigNum auxA=a;
+    BigNum auxB=b;
+
+    auxA.sign=1;
+    auxB.sign=1;
+
+    if(auxA<auxB){
+        return b;
+    } else {
+        return a;
+    }
+}
+
+BigNum BigNum::operator+(BigNum const &alt){
     BigNum res;
+    BigNum auxAlt=alt;
     if(sign==1 && alt.sign==1){
         res=addPositive((*this),alt);
     } else if(sign==1 && alt.sign==-1){
@@ -209,7 +235,7 @@ BigNum BigNum::operator+(BigNum &alt){
     } else if(sign==-1 && alt.sign==1){
         BigNum aux=(*this);
         aux.sign=-aux.sign;
-        res=alt-aux;
+        res=auxAlt-aux;
     } else {
         BigNum aux1=(*this),aux2=alt;
         aux1.sign=-aux1.sign;
@@ -220,15 +246,16 @@ BigNum BigNum::operator+(BigNum &alt){
     return res;
 }
 
-BigNum BigNum::operator-(BigNum &alt){
+BigNum BigNum::operator-(BigNum const &alt){
     BigNum res;
+    BigNum auxAlt=alt;
     if(sign==1 && alt.sign==1){
-
-        if(cmpPositive((*this),alt)){
-            res=alt-(*this);
-            res.sign=-res.sign;
-        } else {
+        if(auxAlt<(*this)){
+            //res=(*this)-alt;
             res=subPositive((*this),alt);
+        } else {
+            res=subPositive(alt,(*this));
+            res.sign=-res.sign;
         }
     } else if(sign==1 && alt.sign==-1){
         BigNum aux=alt;
@@ -245,18 +272,27 @@ BigNum BigNum::operator-(BigNum &alt){
         BigNum aux2=alt;
         aux2.sign=-aux2.sign;
 
-        if(cmpPositive(aux2,aux1)){
+        if(aux2<aux1){
+            res=aux1-aux2;
+        } else {
+            res=subPositive(aux2,aux1);
+            res.sign=-res.sign;
+        }
+
+        res.sign=-res.sign;
+
+        /*if(cmpPositive(aux2,aux1)){
             res=subPositive(aux2,aux1);
         } else {
             res=subPositive(aux1,aux2);
             res.sign=-res.sign;
-        }
+        }*/
     }
 
     return res;
 }
 
-BigNum BigNum::operator*(BigNum &alt){
+BigNum BigNum::operator*(const BigNum &alt){
     BigNum res;
     res.digits.shrinkTo(digits.getSize()+alt.digits.getSize()+1);
 
@@ -275,6 +311,47 @@ BigNum BigNum::operator*(BigNum &alt){
     }
 
     return res;
+}
+
+BigNum BigNum::operator/(BigNum const &alt){
+    BigNum auxA=(*this);
+    //auxA.sign=1;
+    BigNum auxB=alt;
+    auxB.sign=1;
+
+    if(auxB==BigNum(0)){
+        throw -1;
+    }
+
+    BigNum ten=BigNum(10);
+    BigNum k=BigNum(0);
+    BigNum rem=BigNum(0);
+
+    k.sign=this->sign*alt.sign;
+    k.digits.shrinkTo(auxA.digits.getSize());
+
+    for(int i=auxA.digits.getSize();i>0;i--){
+        rem=rem*ten;
+        rem.digits.setPos(1,auxA.digits[i]);
+
+        while(rem.digits.getSize()>1 && rem.digits[rem.digits.getSize()]==0){
+            rem.digits.shrinkTo(rem.digits.getSize()-1);
+        }
+
+        k.digits.setPos(i,0);
+
+         while(!(rem<alt)){
+            int pastValue=k.digits[i];
+            k.digits.setPos(i,pastValue+1);
+            rem=rem-auxB;
+        }
+    }
+
+    while(k.digits.getSize()>1 && k.digits[k.digits.getSize()]==0){
+        k.digits.shrinkTo(k.digits.getSize()-1);
+    }
+
+    return k;
 }
 
 BigNum BigNum::operator%(BigNum &alt){
@@ -299,47 +376,159 @@ BigNum BigNum::operator%(BigNum &alt){
 }
 
 //!https://math.mit.edu/~stevenj/18.335/newton-sqrt.pdf
-BigNum getSqrt(BigNum &a){
+BigNum getSqrt(BigNum a){
     if(a.sign==-1){
         throw -1;
     }
 
-    BigNum lef=a;
-    BigNum one=BigNum(1);
-    BigNum rig=a+one;
+    BigNum aux=BigNum(1);
+    BigNum x0=a;
+    BigNum x1=x0+aux;
+    //BigNum two=BigNum(2);
 
+    x1=x1/2;
+
+    while(x1<x0){
+        x0=x1;
+
+        aux=a/x1;
+        x1=x1+aux;
+        x1=x1/2;
+    }
+
+    return x0;
+}
+
+class BigNumArray{
+private:
+    VectorDyn<BigNum> v;
+public:
+    BigNumArray(){
+        v.shrinkTo(2);
+    }
+    BigNumArray(int sz){
+        v.shrinkTo(sz);
+    }
+
+    int getSize();
+    BigNum operator[](int idx);
+    void setPos(int pos,BigNum val);
+
+    friend istream &operator>>(istream &in,BigNumArray &arr);
+    friend ostream &operator<<(ostream &out,BigNumArray arr);
+
+    bool operator==(const BigNumArray &alt);
+    bool operator!=(const BigNumArray &alt);
+    bool operator<(const BigNumArray &alt);
+
+    BigNum operator *(BigNumArray alt);
+
+    BigNum maxAbsArray();
+};
+
+int BigNumArray::getSize(){
+    return v.getSize();
+}
+
+BigNum BigNumArray::operator[](int idx){
+    return v[idx];
+} 
+
+void BigNumArray::setPos(int pos,BigNum val){
+    v.setPos(pos,val);
+}
+
+bool BigNumArray::operator==(const BigNumArray &alt){
+    BigNumArray aux=alt;
+    if((*this).getSize()!=aux.getSize()){
+        return false;
+    }
+
+    int idx=0;
+    while(idx<=(*this).getSize() && (*this)[idx]==aux[idx]){
+        idx++;
+    }
+
+    if(idx>(*this).getSize()){
+        return true;
+    }
+    return false;
+}
+
+bool BigNumArray::operator!=(const BigNumArray &alt){
+    if((*this)==alt){
+        return false;
+    }
+    return true;
+}
+
+bool BigNumArray::operator<(const BigNumArray &alt){
+    BigNumArray aux=alt;
+    int idx=0;
+    while(idx<=(*this).getSize() && idx<=aux.getSize() && (*this)[idx]==aux[idx]){
+        idx++;
+    }
+
+    if((*this)[idx]<aux[idx]){
+        return true;
+    }
+    return false;
+}
+
+istream &operator >>(istream &in,BigNumArray &arr){
+    for(int i=0;i<arr.getSize();i++){
+        BigNum aux;
+        in>>aux;
+        arr.setPos(i,aux);
+    }
+    return in;
+}
+
+ostream &operator<<(ostream &out,BigNumArray arr){
+    for(int i=0;i<arr.getSize();i++){
+        out<<arr[i]<<" ";
+    }
+    return out;
+} 
+
+BigNum BigNumArray::operator *(BigNumArray alt){
+    BigNum res=BigNum(0);
+    for(int i=0;i<(*this).getSize();i++){
+        res=res+(*this)[i]*alt[i];
+    }
+
+    return res;
+}
+
+BigNum BigNumArray::maxAbsArray(){
+    BigNum res=BigNum(0);
+    for(int i=0;i<(*this).getSize();i++){
+        BigNum newRes=maxAbs(res,(*this)[i]);
+        res=newRes;
+    }
+
+    res.sign=1;
+    return res;
 }
 
 int main(){
-    BigNum a=BigNum(3);
-    BigNum b=BigNum(10);
+    BigNum a=BigNum(25);
+    BigNum b=BigNum(24);
 
-    cout<<a<<endl;
-    cout<<b<<endl;
-    try{
-        BigNum c=a%b;
-        cout<<c;
-    }
-    catch (int e){
-        cout<<"EROARE\n";
-    }
+    BigNumArray arr1=BigNumArray(3);
+    cin>>arr1;
+    cout<<arr1.maxAbsArray()<<endl;
 
-    /*VectorDyn<int> v;
-    v.push(10);
-    v.push(213);
-    v.setPos(5,999);
-    for(int i=1;i<=v.getSize();i++){
-        cout<<v[i]<<" ";
+    //cout<<getSqrt(a)<<" "<<getSqrt(b)<<endl;
+
+    /*if(arr1==arr2){
+        cout<<"EGALE\n";
+    } else if(arr1!=arr2){
+        cout<<"DIFERITE\n";
+    }
+    if(arr1<arr2){
+        cout<<"MAI MIC\n";
     }*/
-
-    //BigNum a=BigNum("0");
-    //BigNum b=BigNum("0");
-    //BigNum c;
-    //c=a*b;
-    //cout<<c;
-
-    /*BigNum c=a-b;
-    c.printNumber();*/
 
     return 0;
 }
