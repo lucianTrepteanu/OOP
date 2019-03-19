@@ -16,8 +16,6 @@ public:
         }
 
         do{
-            //idx++;
-            //digits.setPos(idx,val%10); 
             digits.push(aux%10);
             aux/=10;
         }while(aux);
@@ -28,31 +26,31 @@ public:
     }
     ~BigNum(){}
 
-    BigNum &operator=(const BigNum &alt); //da
-    bool operator==(const BigNum &alt); //da
-    bool operator!=(const BigNum &alt); //da
-    bool operator<(const BigNum &alt); //da
+    BigNum &operator=(BigNum alt);
+    bool operator==(const BigNum &alt);
+    bool operator!=(const BigNum &alt);
+    bool operator<(const BigNum &alt);
 
-    friend bool cmpPositive(const BigNum &a,const BigNum &b); //da
+    friend bool cmpPositive(const BigNum &a,const BigNum &b);
 
-    friend istream &operator >>(istream &in,BigNum &x); //da
-    friend ostream &operator <<(ostream &out,const BigNum &x); //da
+    friend istream &operator >>(istream &in,BigNum &x);
+    friend ostream &operator <<(ostream &out,const BigNum &x);
 
-    friend BigNum addPositive(BigNum a,BigNum b); //da
-    friend BigNum subPositive(BigNum a,BigNum b); //da
+    friend BigNum addPositive(BigNum a,BigNum b);
+    friend BigNum subPositive(BigNum a,BigNum b);
 
-    BigNum operator +(const BigNum &alt); //da
-    BigNum operator -(const BigNum &alt); //da
-    BigNum operator *(const BigNum &alt); //da
-    BigNum operator /(const BigNum &alt);
-    BigNum operator %(BigNum &alt); //da
+    BigNum operator +(const BigNum &alt);
+    BigNum operator -(const BigNum &alt);
+    BigNum operator *(const BigNum &alt);
+    BigNum operator /(BigNum const &alt);
+    BigNum operator %(BigNum &alt);
 
-    friend BigNum maxAbs(const BigNum &a,const BigNum &b); //imd
+    friend BigNum maxAbs(const BigNum &a,const BigNum &b);
 
-    friend BigNum getSqrt(BigNum a); //imd
+    friend BigNum getSqrt(BigNum a);
 };
 
-BigNum& BigNum:: operator =(const BigNum &alt){
+BigNum& BigNum:: operator =(BigNum alt){
     sign=alt.sign;
     digits=alt.digits;
     return (*this);
@@ -60,7 +58,6 @@ BigNum& BigNum:: operator =(const BigNum &alt){
 
 bool cmpPositive(const BigNum &a,const BigNum &b){
     int idx=a.digits.getSize();
-    //cout<<"-----"<<a<<" "<<b<<endl;
     if(a.digits.getSize()<b.digits.getSize()){
         return true;
     } else if(a.digits.getSize()>b.digits.getSize()){
@@ -198,7 +195,6 @@ BigNum subPositive(BigNum a,BigNum b){
         res.digits.shrinkTo(res.digits.getSize()-1);
     }
 
-    //!daca e nr 0???
     return res;
 }
 
@@ -216,7 +212,7 @@ BigNum maxAbs(const BigNum &a,const BigNum &b){
     }
 }
 
-BigNum BigNum::operator+(BigNum const &alt){
+BigNum BigNum::operator+(const BigNum &alt){
     BigNum res;
     BigNum auxAlt=alt;
     if(sign==1 && alt.sign==1){
@@ -236,15 +232,19 @@ BigNum BigNum::operator+(BigNum const &alt){
         res=aux1+aux2;
         res.sign=-res.sign;
     }
+
+    while(res.digits.getSize()>1 && res.digits[res.digits.getSize()]==0){
+        res.digits.shrinkTo(res.digits.getSize()-1);
+    }
+
     return res;
 }
 
-BigNum BigNum::operator-(BigNum const &alt){
+BigNum BigNum::operator-(const BigNum &alt){
     BigNum res;
     BigNum auxAlt=alt;
     if(sign==1 && alt.sign==1){
         if(auxAlt<(*this)){
-            //res=(*this)-alt;
             res=subPositive((*this),alt);
         } else {
             res=subPositive(alt,(*this));
@@ -273,13 +273,10 @@ BigNum BigNum::operator-(BigNum const &alt){
         }
 
         res.sign=-res.sign;
+    }
 
-        /*if(cmpPositive(aux2,aux1)){
-            res=subPositive(aux2,aux1);
-        } else {
-            res=subPositive(aux1,aux2);
-            res.sign=-res.sign;
-        }*/
+    while(res.digits.getSize()>1 && res.digits[res.digits.getSize()]==0){
+        res.digits.shrinkTo(res.digits.getSize()-1);
     }
 
     return res;
@@ -320,7 +317,6 @@ BigNum BigNum::operator/(BigNum const &alt){
     BigNum k=BigNum(0);
     BigNum rem=BigNum(0);
 
-    k.sign=this->sign*alt.sign;
     k.digits.shrinkTo(auxA.digits.getSize());
 
     for(int i=auxA.digits.getSize();i>0;i--){
@@ -333,7 +329,7 @@ BigNum BigNum::operator/(BigNum const &alt){
 
         k.digits.setPos(i,0);
 
-         while(!(rem<alt)){
+        while(rem==auxB || auxB<rem){
             int pastValue=k.digits[i];
             k.digits.setPos(i,pastValue+1);
             rem=rem-auxB;
@@ -344,6 +340,8 @@ BigNum BigNum::operator/(BigNum const &alt){
         k.digits.shrinkTo(k.digits.getSize()-1);
     }
 
+    k.sign=this->sign*alt.sign;
+    
     return k;
 }
 
@@ -354,6 +352,11 @@ BigNum BigNum::operator%(BigNum &alt){
     }
 
     BigNum res=(*this);
+    alt.sign=1;
+
+    while(res<zero){
+        res=res+alt;
+    }
 
     while(alt<res || alt==res){
         BigNum aux=res;
@@ -368,7 +371,7 @@ BigNum BigNum::operator%(BigNum &alt){
     return res;
 }
 
-//!https://math.mit.edu/~stevenj/18.335/newton-sqrt.pdf
+//Newton sqrt
 BigNum getSqrt(BigNum a){
     if(a.sign==-1){
         throw -1;
@@ -377,7 +380,6 @@ BigNum getSqrt(BigNum a){
     BigNum aux=BigNum(1);
     BigNum x0=a;
     BigNum x1=x0+aux;
-    //BigNum two=BigNum(2);
 
     x1=x1/2;
 
@@ -388,6 +390,19 @@ BigNum getSqrt(BigNum a){
         x1=x1+aux;
         x1=x1/2;
     }
+    
+    /*while(x1<x0){
+        x0=x1;
+
+        BigNum aux1=a;
+        BigNum aux2=x1;
+        aux=aux1/aux2;
+        aux1=x1;
+        x1=aux1+aux;
+        aux1=x1;
+        aux2=BigNum(2);
+        x1=aux1/aux2;
+    }*/
 
     return x0;
 }

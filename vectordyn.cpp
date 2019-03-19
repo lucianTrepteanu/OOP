@@ -1,5 +1,5 @@
 //
-// Created by Asus on 15.03.2019.
+// Created by Lucian Trepteanu on 15.03.2019.
 //
 
 const int ADD_SIZE=100;
@@ -65,7 +65,7 @@ VectorDyn<T>&VectorDyn<T>::operator=(const VectorDyn<T>&alt){
     cap=alt.cap;
 
     delete[] v;
-    v=new int[cap];
+    v=new T[cap];
     for(int i=0;i<=sz;i++){
         v[i]=alt.v[i];
     }
@@ -86,7 +86,6 @@ void VectorDyn<T>::setSize(int value){
 template <class T>
 void VectorDyn<T>::push(T value){
     if(sz+1==cap){
-        //realocam mai multa memorie
         T *v2=new T[cap+ADD_SIZE];
         for(int i=0;i<cap;i++){
             v2[i]=v[i];
