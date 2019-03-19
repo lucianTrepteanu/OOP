@@ -18,7 +18,7 @@ int main(){
     cin>>arr1>>arr2;
     cout<<arr1.maxAbsArray()<<endl;
     cout<<arr1*arr2<<endl;
-    cout<<arr1<<endl;*/ 
+    cout<<arr1<<endl;*/
 
     /*cin>>a;
     cout<<getSqrt(a)<<" "<<getSqrt(b)<<endl;*/
@@ -32,10 +32,10 @@ int main(){
         cout<<"MAI MIC\n";
     }*/
 
-    cin>>a>>b;
-    cout<<a+b<<" "<<a-b<<" "<<a*b<<" "<<a/b<<" "<<a%b<<" "<<getSqrt(b)<<endl;
+    //cin>>a>>b;
+    //cout<<a+b<<" "<<a-b<<" "<<a*b<<" "<<a/b<<" "<<a%b<<" "<<getSqrt(b)<<endl;
     BigNum d=BigNum(365*365+13);
-    //cout<<getSqrt(d);
+    cout<<getSqrt(d);
     //cout<<" "<<BigNum(2004)/BigNum(2);
 
     /*BigNum c;

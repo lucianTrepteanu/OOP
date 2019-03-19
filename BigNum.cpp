@@ -1,7 +1,7 @@
 using namespace std;
 
 class BigNum{
-public:
+private:
     int sign;
     VectorDyn<int>digits;
 public:
@@ -48,6 +48,8 @@ public:
     friend BigNum maxAbs(const BigNum &a,const BigNum &b);
 
     friend BigNum getSqrt(BigNum a);
+
+    friend class BigNumArray;
 };
 
 BigNum& BigNum:: operator =(BigNum alt){
