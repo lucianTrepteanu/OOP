@@ -1,5 +1,4 @@
-// TODO: MODULO pe numere negative_sign
-// TODO: Testing
+// TODO: x
 
 #include <iostream>
 #include "VectorDyn.cpp"
@@ -19,7 +18,6 @@ int main(){
     cout<<" "<<a.getSqrt();*/
 
 	VectorDyn<int> v1;
-	VectorDyn<int> v2;
 	for(int i=1;i<=5;i++){
 		v1.push(i);
 	}
@@ -29,16 +27,19 @@ int main(){
         cout<<it.currentItem()<<" ";
     }
 
-    /*VectorDyn<BigNum> v;
+    VectorDyn<BigNum> v;
     v.push(BigNum(123));
     v.push(BigNum(21));
     v.push(BigNum(-1));
+    v.push(BigNum(-41));
 
     sort(v.v+1,v.v+v.getSize()+1);
 
-    for(int i=1;i<=3;i++){
-        cout<<v[i]<<" ";
-    }*/
+    cout<<endl;
+    VectorIterator<BigNum>bigIt=VectorIterator<BigNum>(&v);
+    for(bigIt.begin();!bigIt.isDone();bigIt.getNext()){
+        cout<<bigIt.currentItem()<<" ";
+    }
 	
 	/*BigNum a=BigNum(123);
 	BigNum b=BigNum(-21);

@@ -13,9 +13,6 @@ public:
         }
     }
 
-    /*BigNum(const BigNum &alt):PositiveBigNum(alt){
-        sign=alt.sign;
-    }*/
     BigNum(const BigNum &alt){
         sign=alt.sign;
         digits=alt.digits;
@@ -151,8 +148,6 @@ BigNum BigNum::operator +(const BigNum &alt){
     BigNum res;
     PositiveBigNum posRes;
     BigNum auxAlt=alt;
-	
-	cout<<alt<<endl;
 
     PositiveBigNum positiveA=(*this);
     PositiveBigNum positiveB=alt;
@@ -224,21 +219,17 @@ BigNum BigNum::operator -(const BigNum &alt){
 
 BigNum BigNum::operator *(const BigNum &alt){
 	BigNum res;
-	res.digits.shrinkTo(digits.getSize()+alt.digits.getSize()+1);
-	
-	int t;
-	res.sign=(*this).sign*alt.sign;
-	for(int i=1;i<=digits.getSize();i++){
-		for(int t=0,j=1;j<=alt.digits.getSize()||t;j++,t/=10){
-			int pastValue=res.digits[i+j-1];
-			t+=pastValue+digits[i]*alt.digits[j];
-			res.digits[i+j-1]=t%10;
-		}
-	}
-	
-	while(res.digits.getSize()>1 && res.digits[res.digits.getSize()]==0){
-		res.digits.shrinkTo(res.digits.getSize()-1);
-	}
+    
+    PositiveBigNum posRes;
+	PositiveBigNum positiveA;
+    positiveA.digits=(*this).digits;
+    PositiveBigNum positiveB;
+    positiveB.digits=alt.digits;
+
+    posRes=positiveA*positiveB;
+    
+    res.digits=posRes.digits;
+    res.sign=(*this).sign*alt.sign;
 	
 	return res;
 }
@@ -261,6 +252,43 @@ BigNum BigNum::operator/(const BigNum &alt){
 	k.sign=this->sign*alt.sign;
 	
 	return k;
+}
+
+BigNum BigNum::operator%(const BigNum &alt){
+    BigNum auxA=(*this);
+    BigNum auxB=alt;
+    auxB.sign=1;
+
+    if(auxB==BigNum(0)){
+        throw -1;
+    }
+
+    BigNum ten=BigNum(10);
+    BigNum k=BigNum(0);
+    BigNum rem=BigNum(0);
+
+    k.digits.shrinkTo(auxA.digits.getSize());
+
+    for(int i=auxA.digits.getSize();i>0;i--){
+        rem=rem*ten;
+        rem.digits[1]=auxA.digits[i];
+
+        while(rem.digits.getSize()>1 && rem.digits[rem.digits.getSize()]==0){
+            rem.digits.shrinkTo(rem.digits.getSize()-1);
+        }
+
+        k.digits[i]=0;
+        while(rem==auxB || auxB<rem){
+            k.digits[i]=k.digits[i]+1;
+            rem=rem-auxB;
+        }
+    }
+
+    while(rem.digits.getSize()>1 && rem.digits[rem.digits.getSize()]==0){
+        rem.digits.shrinkTo(rem.digits.getSize()-1);
+    }
+
+    return rem;
 }
 
 PositiveBigNum BigNum::getSqrt(){
