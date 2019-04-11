@@ -1,3 +1,0 @@
-C:/Users/Asus/Desktop/POO/BigNumbers_CLION/cmake-build-debug/CMakeFiles/BigNumbers_CLION.dir
-C:/Users/Asus/Desktop/POO/BigNumbers_CLION/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Asus/Desktop/POO/BigNumbers_CLION/cmake-build-debug/CMakeFiles/rebuild_cache.dir
